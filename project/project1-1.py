@@ -54,8 +54,8 @@ data = data.rename(columns = {"class":"sinif"})
 A = data[data.sinif=='Abnormal']
 N = data[data.sinif=='Normal']
 
-plt.scatter(N.sacral_slope, N.degree_spondylolisthesis, color="red", label="Normal")
-plt.scatter(N.pelvic_tilt_numeric, N.lumbar_lordosis_angle, color="blue", label="Normal")
+plt.scatter(N.sacral_slope, N.degree_spondylolisthesis, color="red", label="x")
+plt.scatter(N.pelvic_tilt_numeric, N.lumbar_lordosis_angle, color="blue", label="y")
 plt.xlabel("Sonuç")
 plt.ylabel("Parametre")
 plt.legend()
@@ -200,7 +200,6 @@ y = y.drop(outlier_index).values
 # Train Test Split -------------------------------------------------------------------------------
 test_size = 0.3
 X_train, X_test, Y_train, Y_test = train_test_split(x, y, test_size = test_size, random_state = 42)
-
 
 
 
