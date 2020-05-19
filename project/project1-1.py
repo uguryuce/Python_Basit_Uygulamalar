@@ -19,9 +19,6 @@ from sklearn.metrics import accuracy_score, confusion_matrix
 # Outlier detect işlemi için gerekli
 from sklearn.neighbors import KNeighborsClassifier, NeighborhoodComponentsAnalysis, LocalOutlierFactor
 
-# import PCA
-from sklearn.decomposition import PCA
-
 # uyarı kütüphanesi
 import warnings
 warnings.filterwarnings("ignore")
