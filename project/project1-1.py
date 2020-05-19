@@ -110,7 +110,7 @@ plt.show()
 
 
 # 0.75 üstü değerleri filtrelemek için threshold kullandık
-threshold = 0.75
+threshold = 0.5
 filtre = np.abs(corr_matrix["sinif"]) > threshold
 corr_features = corr_matrix.columns[filtre].tolist()
 sns.clustermap(data[corr_features].corr(), annot = True, fmt = ".2f")
@@ -270,7 +270,7 @@ print("Basic KNN Acc: ",acc)
 # En iyi parametre seçimi için kullanılacak method ----------------------------------------------
 def KNN_Best_Params(x_train, x_test, y_train, y_test):
     
-    k_range = list(range(1,31)) # tarama listesi oluşturduk
+    k_range = list(range(1,7)) # tarama listesi oluşturduk
     weight_options = ["uniform","distance"] # en uygun iki parametre için
     print()
     param_grid = dict(n_neighbors = k_range, weights = weight_options)
