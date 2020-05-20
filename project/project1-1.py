@@ -1,4 +1,4 @@
-# Gerekli kütüphane tanımlamaları ------------------------------------------------------------------
+# Gerekli kütüphane tanımlamaları ------------------------------------------------------------------------
 import numpy as np
 import pandas as pd
 import seaborn as sns
@@ -30,7 +30,7 @@ warnings.filterwarnings("ignore")
 
 
 
-# Veri seti yükleme --------------------------------------------------------------------------------
+# Veri seti yükleme -------------------------------------------------------------------------------------
 data = pd.read_csv("column_2C.csv")
 
 
@@ -40,7 +40,7 @@ data = pd.read_csv("column_2C.csv")
 
 
 
-# class feature'ın isminin sinif olarak değiştirilmesi -----------------------------------------------
+# class feature'ın isminin sinif olarak değiştirilmesi ---------------------------------------------------
 data = data.rename(columns = {"class":"sinif"})
 
 
@@ -50,7 +50,7 @@ data = data.rename(columns = {"class":"sinif"})
 
 
 
-# scatter ile iki farklı sınıf olarak görselleştirme -------------------------------------------------
+# scatter ile iki farklı sınıf olarak görselleştirme -----------------------------------------------------
 A = data[data.sinif=='Abnormal']
 N = data[data.sinif=='Normal']
 
@@ -67,7 +67,7 @@ plt.legend()
 
 
 
-# sinif feature'ınde bulunan string değerlerin (Abnormal-Normal | 1-0) olarak değiştirilmesi ----------
+# sinif feature'ınde bulunan string değerlerin (Abnormal-Normal | 1-0) olarak değiştirilmesi -------------
 def renameA(x):
     if x== 'Abnormal':
         return 1
@@ -83,7 +83,7 @@ data['sinif'] = data['sinif'].apply(renameA)
 
 
 
-# data.describe'I describe'a atadık
+# data.describe'I describe'a atadık----------------------------------------------------------------------
 describe = data.describe()
 
 
@@ -93,7 +93,7 @@ describe = data.describe()
 
 
 
-# Korelasyon işleminin gerçekleştirilmesi ve görselleştirilmesi --------------------------------------
+# Korelasyon işleminin gerçekleştirilmesi ve görselleştirilmesi -----------------------------------------
 corr_matrix = data.corr()
 sns.clustermap(corr_matrix, annot = True, fmt = ".2f")
 plt.title("Correlation Between Features")
@@ -106,22 +106,7 @@ plt.show()
 
 
 
-# 0.75 üstü değerleri filtrelemek için threshold kullandık
-threshold = 0.5
-filtre = np.abs(corr_matrix["sinif"]) > threshold
-corr_features = corr_matrix.columns[filtre].tolist()
-sns.clustermap(data[corr_features].corr(), annot = True, fmt = ".2f")
-plt.title("Correlation Between Features w Corr Threshold 0.75")
-
-
-
-
-
-
-
-
-
-# Box Plot işlemi gerçekleştirildi -------------------------------------------------------------------
+# Box Plot işlemi gerçekleştirildi ---------------------------------------------------------------------
 
 # iki farklı class olduğu için iki farklı class şeklinde görselleştireceğiz ve data melt edilir
 data_melted = pd.melt(data, id_vars = "sinif",
@@ -145,9 +130,15 @@ plt.show()
 
 
 
-# pair plot -------------------------------------------------------------------------------------------
-sns.pairplot(data[corr_features], diag_kind = "hist", markers = '+', hue = "sinif")
-plt.show()
+# Farklı 2 sınıfın kdeplot ile gösterimi ---------------------------------------------------------------
+pelvic_tilt_numeric = data.loc[data.sinif == 1]
+sacral_slope = data.loc[data.sinif == 0]
+
+ax = sns.kdeplot(pelvic_tilt_numeric, pelvic_tilt_numeric,
+                 cmap="Reds", shade=True, shade_lowest=False)
+
+ax = sns.kdeplot(sacral_slope, sacral_slope,
+                 cmap="Blues", shade=True, shade_lowest=False)
 
 
 
@@ -156,7 +147,29 @@ plt.show()
 
 
 
-# outlier - inlier -------------------------------------------------------------------------------------------
+#print -> Sinif : 1 (Abnormal) pairplot ile çizimi ------------------------------------------------------
+sns.pairplot(data)
+grid = sns.PairGrid(data= data[data['sinif'] == 1],
+                    vars = ['sacral_slope', 'degree_spondylolisthesis', 
+                    'lumbar_lordosis_angle'], size = 4)
+    
+# Map a scatter plot to the upper triangle
+grid = grid.map_upper(plt.scatter, color = 'darkred')
+
+# Map a histogram to the diagonal
+grid = grid.map_diag(plt.hist, bins = 10, color = 'darkred', 
+                     edgecolor = 'k')
+# Map a density plot to the lower triangle
+grid = grid.map_lower(sns.kdeplot, cmap = 'Reds')
+
+
+
+
+
+
+
+
+# outlier - inlier ------------------------------------------------------------------------------------
 y = data.sinif
 x = data.drop(["sinif"], axis = 1)
 columns = x.columns.tolist()
@@ -197,7 +210,7 @@ y = y.drop(outlier_index).values
 
 
 
-# Train Test Split -------------------------------------------------------------------------------
+# Train Test Split ----------------------------------------------------------------------------------
 test_size = 0.3
 X_train, X_test, Y_train, Y_test = train_test_split(x, y, test_size = test_size, random_state = 42)
 
@@ -207,7 +220,8 @@ X_train, X_test, Y_train, Y_test = train_test_split(x, y, test_size = test_size,
 
 
 
-# Normalizasyon ---------------------------------------------------------------------------------
+
+# Normalizasyon ------------------------------------------------------------------------------------
 # her future için dağılımı ve outlier görebiliyoruz 
 scaler = StandardScaler()
 X_train = scaler.fit_transform(X_train)
@@ -217,7 +231,15 @@ X_train_df = pd.DataFrame(X_train, columns = columns)
 X_train_df_describe = X_train_df.describe()
 X_train_df["sinif"] = Y_train
 
-# Box Plot ile normalizasyondan sonra çizim yapıldı------------------------------------------
+
+
+
+
+
+
+
+
+# Box Plot ile normalizasyondan sonra çizim yapıldı--------------------------------------------------
 
 # iki farklı class olduğu için iki farklı class şeklinde görselleştireceğiz ve data melt edilir
 data_melted = pd.melt(X_train_df, id_vars = "sinif",
@@ -234,9 +256,28 @@ sns.boxplot(x = "features", y = "value", hue = "sinif", data = data_melted)
 plt.xticks(rotation = 90)
 plt.show()
 
-# pair plot ----------------------------------------------------------------------------------
-sns.pairplot(X_train_df[corr_features], diag_kind = "hist", markers = '+', hue = "sinif")
-plt.show()
+
+
+
+
+
+
+
+#print -> Sinif : 1 (Abnormal)
+sns.pairplot(data)
+# Create an instance of the PairGrid class.
+grid = sns.PairGrid(data= data[data['sinif'] == 1],
+                    vars = ['sacral_slope', 'degree_spondylolisthesis', 
+                    'lumbar_lordosis_angle'], size = 4)
+        
+# Map a scatter plot to the upper triangle
+grid = grid.map_upper(plt.scatter, color = 'darkred')
+
+# Map a histogram to the diagonal
+grid = grid.map_diag(plt.hist, bins = 10, color = 'darkred', 
+                     edgecolor = 'k')
+# Map a density plot to the lower triangle
+grid = grid.map_lower(sns.kdeplot, cmap = 'Reds')
 
 
 
@@ -245,7 +286,7 @@ plt.show()
 
 
 
-# KNN Method ----------------------------------------------------------------------------------
+# KNN Method -----------------------------------------------------------------------------------------
 knn = KNeighborsClassifier(n_neighbors = 3)
 knn.fit(X_train, Y_train)
 y_pred = knn.predict(X_test)
@@ -263,7 +304,7 @@ print("Basic KNN Acc: ",acc)
 
 
 
-# En iyi parametre seçimi için kullanılacak method ----------------------------------------------
+# En iyi parametre seçimi için kullanılacak method --------------------------------------------------
 def KNN_Best_Params(x_train, x_test, y_train, y_test):
     
     k_range = list(range(1,7)) # tarama listesi oluşturduk
@@ -282,6 +323,7 @@ def KNN_Best_Params(x_train, x_test, y_train, y_test):
     knn = KNeighborsClassifier(**grid.best_params_)
     knn.fit(x_train, y_train)
     
+    # test ve train değerlerini predict değerlerine eşitliyoruz
     y_pred_test = knn.predict(x_test)
     y_pred_train = knn.predict(x_train)
     
@@ -298,24 +340,5 @@ def KNN_Best_Params(x_train, x_test, y_train, y_test):
     return grid
     
 grid = KNN_Best_Params(X_train, X_test, Y_train, Y_test)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
