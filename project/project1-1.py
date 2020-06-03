@@ -51,6 +51,7 @@ data = data.rename(columns = {"class":"sinif"})
 
 
 # scatter ile iki farklı sınıf olarak görselleştirme -----------------------------------------------------
+# String olan feature'lar char'a dönüştürüldü
 A = data[data.sinif=='Abnormal']
 N = data[data.sinif=='Normal']
 
@@ -75,7 +76,6 @@ def renameA(x):
         return 0
     
 data['sinif'] = data['sinif'].apply(renameA)
-#data["sinif"] = [1 if i.strip() == "Abnormal" else 0 for i in data.sinif]
 
 
 
@@ -83,7 +83,8 @@ data['sinif'] = data['sinif'].apply(renameA)
 
 
 
-# data.describe'I describe'a atadık----------------------------------------------------------------------
+
+# data.describe'I describe değişkenine atadık--------------------------------------------------------------
 describe = data.describe()
 
 
@@ -106,7 +107,7 @@ plt.show()
 
 
 
-# Box Plot işlemi gerçekleştirildi ---------------------------------------------------------------------
+# Box Plot işlemi ----------------------------------------------------------------------------------------
 
 # iki farklı class olduğu için iki farklı class şeklinde görselleştireceğiz ve data melt edilir
 data_melted = pd.melt(data, id_vars = "sinif",
@@ -222,7 +223,7 @@ X_train, X_test, Y_train, Y_test = train_test_split(x, y, test_size = test_size,
 
 
 # Normalizasyon ------------------------------------------------------------------------------------
-# her future için dağılımı ve outlier görebiliyoruz 
+# her feature için dağılımı ve outlier görebiliyoruz 
 scaler = StandardScaler()
 X_train = scaler.fit_transform(X_train)
 X_test = scaler.transform(X_test)
